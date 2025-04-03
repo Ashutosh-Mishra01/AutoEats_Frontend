@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_URL = "https://auto-eats-backend.vercel.app/";
+export const API_URL = "https://auto-eats-backend.vercel.app";
 
 
 export const api = axios.create({
