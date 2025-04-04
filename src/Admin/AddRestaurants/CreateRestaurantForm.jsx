@@ -36,24 +36,30 @@ const CreateRestaurantForm = () => {
       name: values.name,
       description: values.description,
       cuisineType: values.cuisineType,
+      status: "PENDING",
       address: {
-        streetAddress: values.streetAddress,
+        street: values.streetAddress,
         city: values.city,
-        stateProvince: values.stateProvince,
+        state: values.stateProvince,
         postalCode: values.postalCode,
-        country: values.country,
+        country: values.country || "India"
       },
-      contactInformation: {
+      contact: {
+        phoneNumber: values.mobile,
         email: values.email,
-        mobile: values.mobile,
-        twitter: values.twitter,
-        instagram: values.instagram,
+        socialMedia: {
+          twitter: values.twitter,
+          instagram: values.instagram
+        }
       },
       openingHours: values.openingHours,
-      images: values.images,
+      images: values.images.length > 0 ? values.images : ["https://default-restaurant-image.jpg"],
+      rating: 0,
+      numRatings: 0
     };
+
+    console.log("Sending restaurant data:", data);
     dispatch(createRestaurant({ data, token }));
-    console.log(data);
   };
 
   const formik = useFormik({
