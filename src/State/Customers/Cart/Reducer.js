@@ -15,6 +15,7 @@ const cartReducer = (state = initialState, action) => {
     case actionTypes.GET_ALL_CART_ITEMS_REQUEST:
     case actionTypes.UPDATE_CARTITEM_REQUEST:
     case actionTypes.REMOVE_CARTITEM_REQUEST:
+    case actionTypes.ADD_ITEM_TO_CART_REQUEST:
       return {
         ...state,
         loading: true,
@@ -26,13 +27,13 @@ const cartReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         cart: action.payload,
-        cartItems: action.payload.items,
+        cartItems: action.payload.items || [],
       };
     case actionTypes.ADD_ITEM_TO_CART_SUCCESS:
       return {
         ...state,
         loading: false,
-        cartItems: [action.payload, ...state.cartItems],
+        cartItems: state.cartItems ? [...state.cartItems, action.payload] : [action.payload],
       };
     case actionTypes.UPDATE_CARTITEM_SUCCESS:
       return {
@@ -53,16 +54,16 @@ const cartReducer = (state = initialState, action) => {
     case actionTypes.FIND_CART_FAILURE:
     case actionTypes.UPDATE_CARTITEM_FAILURE:
     case actionTypes.REMOVE_CARTITEM_FAILURE:
-      // case actionTypes.GET_ALL_CART_ITEMS_FAILURE:
+    case actionTypes.ADD_ITEM_TO_CART_FAILURE:
       return {
         ...state,
         loading: false,
         error: action.payload,
       };
 
-      case LOGOUT:
+    case LOGOUT:
       localStorage.removeItem("jwt");
-      return { ...state, cartItems:[],cart:null, success: "logout success" };
+      return { ...state, cartItems: [], cart: null, success: "logout success" };
     default:
       return state;
   }
