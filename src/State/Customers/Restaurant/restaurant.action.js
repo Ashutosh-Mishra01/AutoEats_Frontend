@@ -102,43 +102,20 @@ export const getRestaurantByUserId = (jwt) => {
 };
 
 export const createRestaurant = (reqData) => {
+  console.log("token-----------", reqData.token);
   return async (dispatch) => {
     dispatch(createRestaurantRequest());
     try {
-      // Validate required fields
-      const requiredFields = ['name', 'description', 'cuisineType', 'address', 'contact'];
-      for (const field of requiredFields) {
-        if (!reqData.data[field]) {
-          throw new Error(`Missing required field: ${field}`);
-        }
-      }
-
-      // Log the request data for debugging
-      console.log("Creating restaurant with data:", JSON.stringify(reqData.data, null, 2));
-
       const { data } = await api.post(`/api/admin/restaurants`, reqData.data, {
         headers: {
-          'Authorization': `Bearer ${reqData.token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${reqData.token}`,
+        },
       });
-
-      console.log("Restaurant created successfully:", data);
       dispatch(createRestaurantSuccess(data));
-      
-      // Optional: Show success message or redirect
-      return data;
+      console.log("created restaurant ", data);
     } catch (error) {
-      console.error("Failed to create restaurant:", error);
-      
-      // Log detailed error information
-      if (error.response) {
-        console.error("Server error details:", error.response.data);
-        console.error("Status code:", error.response.status);
-      }
-      
+      console.log("catch error ", error);
       dispatch(createRestaurantFailure(error));
-      throw error; // Re-throw to handle in the component
     }
   };
 };
