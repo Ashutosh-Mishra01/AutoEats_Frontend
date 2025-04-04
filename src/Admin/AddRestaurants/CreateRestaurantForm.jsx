@@ -38,7 +38,7 @@ const CreateRestaurantForm = () => {
       cuisineType: values.cuisineType,
       status: "PENDING",
       address: {
-        street: values.streetAddress,
+        streetAddress: values.streetAddress,
         city: values.city,
         state: values.stateProvince,
         postalCode: values.postalCode,
