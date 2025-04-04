@@ -36,26 +36,21 @@ const CreateRestaurantForm = () => {
       name: values.name,
       description: values.description,
       cuisineType: values.cuisineType,
-      status: "PENDING",
       address: {
         streetAddress: values.streetAddress,
         city: values.city,
         state: values.stateProvince,
         postalCode: values.postalCode,
-        country: values.country || "India"
+        country: values.country
       },
-      contact: {
-        phoneNumber: values.mobile,
+      contactInformation: {
         email: values.email,
-        socialMedia: {
-          twitter: values.twitter,
-          instagram: values.instagram
-        }
+        mobile: values.mobile,
+        twitter: values.twitter,
+        instagram: values.instagram
       },
       openingHours: values.openingHours,
-      images: values.images.length > 0 ? values.images : ["https://default-restaurant-image.jpg"],
-      rating: 0,
-      numRatings: 0
+      images: values.images
     };
 
     console.log("Sending restaurant data:", data);
