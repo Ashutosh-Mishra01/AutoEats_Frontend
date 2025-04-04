@@ -84,14 +84,19 @@ export const getRestaurantByUserId = (jwt) => {
   return async (dispatch) => {
     dispatch({ type: GET_RESTAURANT_BY_USER_ID_REQUEST });
     try {
-      const { data } = await api.get(`/api/admin/restaurants/user`, {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      });
+      console.log("Request headers:", {
+         Authorization: `Bearer ${jwt}`
+       });
+       
+       const { data } = await api.get(`/api/admin/restaurants/user`, {
+         headers: {
+           Authorization: `Bearer ${jwt}`,
+         },
+       });
       console.log("get restaurant by user id ", data);
       dispatch({ type: GET_RESTAURANT_BY_USER_ID_SUCCESS, payload: data });
     } catch (error) {
+      console.log("Error details:", error.response?.data);
       console.log("catch error ", error);
       dispatch({
         type: GET_RESTAURANT_BY_USER_ID_FAILURE,
