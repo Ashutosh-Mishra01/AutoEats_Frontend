@@ -1,4 +1,3 @@
-
 import { api } from "../../../config/api";
 import {
   findCartFailure,
@@ -42,21 +41,31 @@ export const getAllCartItems = (reqData) => {
   };
 };
 
-export const addItemToCart= (reqData) => {
+export const addItemToCart = (reqData) => {
   return async (dispatch) => {
-    dispatch({type:ADD_ITEM_TO_CART_REQUEST});
+    dispatch({type: ADD_ITEM_TO_CART_REQUEST});
     try {
-      const {data} = await api.put(`/api/cart/add`,reqData.cartItem,{
+      const { data } = await api.put(`/api/cart/add`, reqData.cartItem, {
         headers: {
-            Authorization: `Bearer ${reqData.token}`,
-          },
+          Authorization: `Bearer ${reqData.token}`,
+        },
       });
-      console.log("add item to cart ",data)
-      dispatch({type:ADD_ITEM_TO_CART_SUCCESS, payload:data});
+      console.log("add item to cart ", data);
       
+      // Dispatch success with populated data
+      dispatch({
+        type: ADD_ITEM_TO_CART_SUCCESS,
+        payload: data
+      });
+      
+      // Refresh the cart to get updated totals
+      dispatch(findCart(reqData.token));
     } catch (error) {
-      console.log("catch error ",error)
-      dispatch({type:ADD_ITEM_TO_CART_FAILURE,payload:error.message});
+      console.log("catch error ", error);
+      dispatch({
+        type: ADD_ITEM_TO_CART_FAILURE,
+        payload: error.response?.data?.message || error.message
+      });
     }
   };
 };
