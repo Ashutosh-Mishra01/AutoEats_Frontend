@@ -126,32 +126,18 @@ const Cart = () => {
       return;
     }
 
-    // Find the selected address from user's addresses
-    const selectedAddress = auth.user?.addresses.find(addr => addr._id === addressId);
-    if (!selectedAddress) {
-      console.error("Selected address not found");
-      setOpenSnakbar(true);
-      return;
-    }
-
-    // Create order with the complete delivery address object
+    // Create order with the existing address ID
     const data = {
       jwt: localStorage.getItem("jwt"),
       order: {
         restaurantId,
         deliveryAddress: {
-          streetAddress: selectedAddress.streetAddress,
-          city: selectedAddress.city,
-          state: selectedAddress.state,
-          postalCode: selectedAddress.postalCode,
-          country: selectedAddress.country || "India",
-          fullName: selectedAddress.fullName
+          _id: addressId  // Send the address ID in the correct format
         }
       }
     };
 
-    console.log("Creating order with delivery address:", selectedAddress);
-    console.log("Order data:", data);
+    console.log("Creating order with existing address ID:", addressId);
     
     try {
       dispatch(createOrder(data));
