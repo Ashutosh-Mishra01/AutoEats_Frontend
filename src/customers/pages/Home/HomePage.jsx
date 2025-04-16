@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./HomePage.css";
 import Navbar from "../../components/Navbar/Navbar";
 import MultipleItemsCarousel from "../../components/MultiItemCarousel/MultiItemCarousel";
@@ -8,62 +8,79 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllRestaurantsAction } from "../../../State/Customers/Restaurant/restaurant.action";
 import RecommendedRestaurants from "../../components/Recommendations/RecommendedRestaurants";
 import RecommendedFoodItems from "../../components/Recommendations/RecommendedFoodItems";
+import Search from "../../components/Search/Search";
+import { Grid, Typography } from "@mui/material";
 // import { getAllRestaurantsAction } from "../../../State/Restaurant/Action";
 // import RestarantCard from "../../components/RestarentCard/Restaurant";
 
 const HomePage = () => {
-  const { auth, restaurant } = useSelector((store) => store);
   const dispatch = useDispatch();
+  const { restaurants, loading } = useSelector((store) => store.restaurant);
+  const { auth } = useSelector((store) => store);
+  const [recommendedRestaurants, setRecommendedRestaurants] = useState([]);
 
   useEffect(() => {
-    if (auth.user) {
-      dispatch(getAllRestaurantsAction(localStorage.getItem("jwt")));
-    }
-  }, [auth.user]);
-  return (
-    <div className="">
-      <section className="-z-50 banner relative flex flex-col justify-center items-center">
-        <div className="w-[50vw] z-10 text-center">
-          <p className="text-2xl lg:text-7xl font-bold z-10 py-5"> AutoEats</p>
-          <p className="z-10   text-gray-300 text-xl lg:text-4xl">
-            Taste the Convenience: Food, Fast and Delivered.
-          </p>
-        </div>
+    dispatch(getAllRestaurantsAction(auth.jwt));
+  }, [dispatch, auth.jwt]);
 
-        <div className="cover absolute top-0 left-0 right-0"></div>
-        <div className="fadout"></div>
+  // Handle recommended restaurants with local storage
+  useEffect(() => {
+    if (auth.user) {
+      // Check if recommendations exist in local storage
+      const storedRecommendations = localStorage.getItem('userRecommendations');
+      if (storedRecommendations) {
+        setRecommendedRestaurants(JSON.parse(storedRecommendations));
+      } else if (restaurants.length > 0) {
+        // Generate new random recommendations
+        const shuffled = [...restaurants].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 3);
+        setRecommendedRestaurants(selected);
+        localStorage.setItem('userRecommendations', JSON.stringify(selected));
+      }
+    } else {
+      // Clear recommendations when user logs out
+      setRecommendedRestaurants([]);
+      localStorage.removeItem('userRecommendations');
+    }
+  }, [auth.user, restaurants]);
+
+  return (
+    <div className="relative">
+      <section className="-z-50 relative">
+        <div className="hero-section h-[40vh] md:h-[65vh]"></div>
       </section>
 
-      {/* Personalized Recommendations (only show when user is logged in) */}
-      {auth.user && (
-        <>
-          <section className="px-5 lg:px-20">
-            <RecommendedRestaurants />
-          </section>
-          <section className="px-5 lg:px-20">
-            <RecommendedFoodItems />
-          </section>
-        </>
+      <section className="absolute top-0 left-0 right-0">
+        <Search />
+      </section>
+
+      {/* Top 3 Recommended Restaurants Section */}
+      {auth.user && recommendedRestaurants.length > 0 && (
+        <section className="px-5 lg:px-20 py-10">
+          <Typography variant="h4" className="font-bold mb-6">
+            Top 3 Recommended Restaurants
+          </Typography>
+          <Grid container spacing={3}>
+            {recommendedRestaurants.map((restaurant) => (
+              <Grid item xs={12} sm={6} md={4} key={restaurant._id}>
+                <RestaurantCard data={restaurant} />
+              </Grid>
+            ))}
+          </Grid>
+        </section>
       )}
 
-      <section className="p-10 lg:py-10 lg:px-20">
-        <div className="">
-          <p className="text-2xl font-semibold text-gray-400 py-3 pb-10">
-            Top Meels
-          </p>
-          <MultipleItemsCarousel />
-        </div>
-      </section>
+      {/* All Restaurants Section */}
       <section className="px-5 lg:px-20">
-        <div className="">
-          <h1 className="text-2xl font-semibold text-gray-400 py-3 ">
-            Order From Our Handpicked Favorites
-          </h1>
-          <div className="flex flex-wrap items-center justify-around ">
-            {restaurant.restaurants.map((item, i) => (
-              <RestaurantCard data={item} index={i} />
+        <div>
+          <h1 className="text-2xl font-semibold py-3">All Restaurants</h1>
+          <Grid container spacing={3}>
+            {restaurants.map((restaurant) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={restaurant._id}>
+                <RestaurantCard data={restaurant} />
+              </Grid>
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
     </div>
