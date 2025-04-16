@@ -10,32 +10,42 @@ const HomePage = () => {
   const dispatch = useDispatch();
   const { restaurants, loading } = useSelector((store) => store.restaurant);
   const { auth } = useSelector((store) => store);
-  const [recommendedRestaurants, setRecommendedRestaurants] = useState([]);
+  const [recommendedRestaurants, setRecommendedRestaurants] = useState(() => {
+    // Initialize from localStorage during component mount
+    const stored = localStorage.getItem('userRecommendations');
+    return stored ? JSON.parse(stored) : [];
+  });
 
+  // Fetch all restaurants
   useEffect(() => {
     dispatch(getAllRestaurantsAction(auth.jwt));
   }, [dispatch, auth.jwt]);
 
   // Handle recommended restaurants with local storage
   useEffect(() => {
-    // Only generate new recommendations when user logs in and no recommendations exist
-    if (auth.user) {
-      const storedRecommendations = localStorage.getItem('userRecommendations');
-      if (storedRecommendations) {
-        setRecommendedRestaurants(JSON.parse(storedRecommendations));
-      } else if (restaurants.length > 0) {
-        // Generate new random recommendations only if none exist
-        const shuffled = [...restaurants].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 3);
-        setRecommendedRestaurants(selected);
-        localStorage.setItem('userRecommendations', JSON.stringify(selected));
-      }
-    } else {
+    if (!auth.user) {
       // Clear recommendations when user logs out
       setRecommendedRestaurants([]);
       localStorage.removeItem('userRecommendations');
+      return;
     }
-  }, [auth.user, restaurants.length]); // Only depend on auth.user and restaurants.length
+
+    // Check if we already have recommendations
+    const stored = localStorage.getItem('userRecommendations');
+    if (stored) {
+      const parsedStored = JSON.parse(stored);
+      setRecommendedRestaurants(parsedStored);
+      return;
+    }
+
+    // Only generate new recommendations if we don't have any and restaurants are loaded
+    if (restaurants.length > 0 && recommendedRestaurants.length === 0) {
+      const shuffled = [...restaurants].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 3);
+      setRecommendedRestaurants(selected);
+      localStorage.setItem('userRecommendations', JSON.stringify(selected));
+    }
+  }, [auth.user, restaurants.length]);
 
   return (
     <div className="">
