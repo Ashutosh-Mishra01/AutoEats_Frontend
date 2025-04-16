@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "./HomePage.css";
-import Navbar from "../../components/Navbar/Navbar";
-import MultipleItemsCarousel from "../../components/MultiItemCarousel/MultiItemCarousel";
-import { restaurents } from "../../../Data/restaurents";
-import RestaurantCard from "../../components/RestarentCard/RestaurantCard";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllRestaurantsAction } from "../../../State/Customers/Restaurant/restaurant.action";
-import RecommendedRestaurants from "../../components/Recommendations/RecommendedRestaurants";
-import RecommendedFoodItems from "../../components/Recommendations/RecommendedFoodItems";
+import RestaurantCard from "../../components/RestarentCard/RestaurantCard";
 import Search from "../../components/Search/Search";
 import { Grid, Typography } from "@mui/material";
-// import { getAllRestaurantsAction } from "../../../State/Restaurant/Action";
-// import RestarantCard from "../../components/RestarentCard/Restaurant";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -25,13 +18,13 @@ const HomePage = () => {
 
   // Handle recommended restaurants with local storage
   useEffect(() => {
+    // Only generate new recommendations when user logs in and no recommendations exist
     if (auth.user) {
-      // Check if recommendations exist in local storage
       const storedRecommendations = localStorage.getItem('userRecommendations');
       if (storedRecommendations) {
         setRecommendedRestaurants(JSON.parse(storedRecommendations));
       } else if (restaurants.length > 0) {
-        // Generate new random recommendations
+        // Generate new random recommendations only if none exist
         const shuffled = [...restaurants].sort(() => 0.5 - Math.random());
         const selected = shuffled.slice(0, 3);
         setRecommendedRestaurants(selected);
@@ -42,12 +35,19 @@ const HomePage = () => {
       setRecommendedRestaurants([]);
       localStorage.removeItem('userRecommendations');
     }
-  }, [auth.user, restaurants]);
+  }, [auth.user, restaurants.length]); // Only depend on auth.user and restaurants.length
 
   return (
-    <div className="relative">
-      <section className="-z-50 relative">
-        <div className="hero-section h-[40vh] md:h-[65vh]"></div>
+    <div className="">
+      <section className="-z-50 banner relative flex flex-col justify-center items-center">
+        <div className="w-[50vw] z-10 text-center">
+          <p className="text-2xl lg:text-7xl font-bold z-10 py-5">AutoEats</p>
+          <p className="z-10 text-gray-300 text-xl lg:text-4xl">
+            Taste the Convenience: Food, Fast and Delivered.
+          </p>
+        </div>
+        <div className="cover absolute top-0 left-0 right-0"></div>
+        <div className="fadout"></div>
       </section>
 
       <section className="absolute top-0 left-0 right-0">
