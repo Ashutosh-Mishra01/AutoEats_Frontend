@@ -12,7 +12,7 @@ const HomePage = () => {
   const { auth } = useSelector((store) => store);
   const [recommendedRestaurants, setRecommendedRestaurants] = useState(() => {
     // Initialize from localStorage during component mount
-    const stored = localStorage.getItem('userRecommendations');
+    const stored = localStorage.getItem(`userRecommendations_${auth?.user?._id}`);
     return stored ? JSON.parse(stored) : [];
   });
 
@@ -26,26 +26,24 @@ const HomePage = () => {
     if (!auth.user) {
       // Clear recommendations when user logs out
       setRecommendedRestaurants([]);
-      localStorage.removeItem('userRecommendations');
+      localStorage.removeItem(`userRecommendations_${auth?.user?._id}`);
       return;
     }
 
-    // Check if we already have recommendations
-    const stored = localStorage.getItem('userRecommendations');
-    if (stored) {
-      const parsedStored = JSON.parse(stored);
-      setRecommendedRestaurants(parsedStored);
-      return;
-    }
-
-    // Only generate new recommendations if we don't have any and restaurants are loaded
-    if (restaurants.length > 0 && recommendedRestaurants.length === 0) {
+    // Only generate new recommendations if we don't have any stored for this user
+    const stored = localStorage.getItem(`userRecommendations_${auth.user._id}`);
+    
+    if (!stored && restaurants.length > 0) {
+      // Generate new recommendations only if none exist for this user
       const shuffled = [...restaurants].sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 3);
       setRecommendedRestaurants(selected);
-      localStorage.setItem('userRecommendations', JSON.stringify(selected));
+      localStorage.setItem(`userRecommendations_${auth.user._id}`, JSON.stringify(selected));
+    } else if (stored && recommendedRestaurants.length === 0) {
+      // Load stored recommendations if they exist but aren't in state
+      setRecommendedRestaurants(JSON.parse(stored));
     }
-  }, [auth.user, restaurants.length]);
+  }, [auth.user, restaurants.length]); // Remove recommendedRestaurants from dependencies
 
   return (
     <div className="">
